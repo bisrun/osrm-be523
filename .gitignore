@@ -116,4 +116,6 @@ lib/binding
 #compile
 /build-osrm-backend-osrm_build-Debug/*
 
-CMakeLists.txt.user
+osrm-backend/CMakeLists.txt.user
+.~lock.osrm*
+~

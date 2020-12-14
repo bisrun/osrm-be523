@@ -114,6 +114,7 @@ class Extractor
         const NameTable &name_table,
         LaneDescriptionMap lane_description_map,
         ScriptingEnvironment &scripting_environment);
+    int		CreateNodeShape(const std::vector<util::Coordinate> &nodes, const std::string & file_path);
 };
 } // namespace extractor
 } // namespace osrm

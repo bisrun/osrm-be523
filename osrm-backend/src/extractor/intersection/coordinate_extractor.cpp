@@ -119,7 +119,7 @@ util::Coordinate CoordinateExtractor::ExtractRepresentativeCoordinate(
     }
 
     // due to repeated coordinates / smaller offset errors we skip over the very first parts of the
-    // coordinate set to add a small level of fault tolerance
+    // coordinate set to add a small level of fault tolerancej
     const constexpr double skipping_inaccuracies_distance = 2;
 
     const auto &turn_edge_data = node_based_graph.GetEdgeData(turn_edge).flags;

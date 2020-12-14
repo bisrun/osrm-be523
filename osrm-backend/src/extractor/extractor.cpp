@@ -35,6 +35,9 @@
 // Keep debug include to make sure the debug header is in sync with types.
 #include "util/debug.hpp"
 
+
+#include "extractor/extractor_shapefiles.hpp"
+
 #include <boost/assert.hpp>
 
 #include <osmium/handler/node_locations_for_ways.hpp>
@@ -261,6 +264,10 @@ int Extractor::run(ScriptingEnvironment &scripting_environment)
     auto const &coordinates = node_based_graph_factory.GetCoordinates();
     files::writeNodes(
         config.GetPath(".osrm.nbg_nodes"), coordinates, node_based_graph_factory.GetOsmNodes());
+
+    // by hsb ++: for debug
+    CreateNodeShape(coordinates, "/project/osrm/git/ndata/output/node_.shp");
+
     node_based_graph_factory.ReleaseOsmNodes();
 
     auto const &node_based_graph = node_based_graph_factory.GetGraph();
@@ -915,6 +922,48 @@ void Extractor::ProcessGuidanceTurns(
     TIMER_STOP(write_guidance_data);
     util::Log() << "ok, after " << TIMER_SEC(write_guidance_data) << "s";
 }
+
+
+
+
+int		Extractor::CreateNodeShape( const std::vector<util::Coordinate> &nodes, const std::string & file_path)
+{
+
+    CSFNodeUnit * psfRouteUnit = new CSFNodeUnit();
+
+    std::vector<util::Coordinate>::const_iterator itr = nodes.begin();
+    GPOINT pt;
+    STNodeUnit kRU;
+    int node_idx = 0 ;
+
+    psfRouteUnit->CreateShpFile(file_path.c_str());
+
+    for ( itr = nodes.begin(), node_idx = 0 ; itr != nodes.end() ; ++itr,node_idx ++ )
+    {
+        pt.set((double)toFloating(itr->lon), (double)toFloating(itr->lat));
+        CSHPObject * pShpObj = psfRouteUnit->SHPCreateSimpleObject(SHPT_POINT, 1, 0, 0, 0, &pt);
+        kRU.iNodeIdx = node_idx + 1;
+        kRU.iOrder = 1;
+
+        psfRouteUnit->AddRecord(pShpObj, &kRU);
+
+        if (pShpObj)
+        {
+            delete pShpObj;
+            pShpObj = 0;
+        }
+    }
+
+
+    if (psfRouteUnit)
+    {
+        delete psfRouteUnit;
+        psfRouteUnit = 0;
+    }
+
+    return 0;
+}
+
 
 } // namespace extractor
 } // namespace osrm

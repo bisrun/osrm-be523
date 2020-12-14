@@ -151,6 +151,9 @@ inline void writeNodes(const boost::filesystem::path &path,
     storage::tar::FileWriter writer{path, fingerprint};
 
     storage::serialization::write(writer, "/common/nbn_data/coordinates", coordinates);
+
+    const std::vector<util::Coordinate> &nodes = coordinates;
+    //printf("x=%d, y=%d", (int)nodes.begin()->lon, (int)nodes.begin()->lat);
     util::serialization::write(writer, "/common/nbn_data/osm_node_ids", osm_node_ids);
 }
 
