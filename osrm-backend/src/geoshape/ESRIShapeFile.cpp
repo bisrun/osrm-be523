@@ -124,7 +124,7 @@ CESRIShapeFile::CESRIShapeFile(int nMaxDepth)
     m_hDBF = NULL;
 
 	//InitializeCriticalSection(&m_csQueueLock);
-};
+}
 
 CESRIShapeFile::~CESRIShapeFile()
 {
