@@ -102,6 +102,8 @@ struct STPtOnLine
 	unsigned char  dummy[3];
 
 	STPtOnLine(){clear();}
-	void clear(){memset(this, 0x00, sizeof(STPtOnLine));}
+    void clear(){
+        memset(static_cast<void*>(this), 0x00, sizeof(STPtOnLine));
+    }
 };
 #endif // !defined(AFX_GPOINT_H__EE7622A7_5950_4F5D_B24C_4E7D7EDC22A9__INCLUDED_)

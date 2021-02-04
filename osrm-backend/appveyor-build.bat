@@ -10,6 +10,7 @@ ECHO NUMBER_OF_PROCESSORS^: %NUMBER_OF_PROCESSORS%
 
 
 :: Check CMake version
+::SET CMAKE_VERSION=3.19.2
 SET CMAKE_VERSION=3.16.3
 SET PATH=%PROJECT_DIR%\cmake-%CMAKE_VERSION%-win32-x86\bin;%PATH%
 ECHO cmake^: && cmake --version
@@ -19,6 +20,7 @@ cmake --version | findstr /C:%CMAKE_VERSION% && GOTO CMAKE_OK
 
 :CMAKE_NOT_OK
 ECHO CMAKE NOT OK - downloading new CMake %CMAKE_VERSION%
+::powershell Invoke-WebRequest https://cmake.org/files/v3.19/cmake-%CMAKE_VERSION%-win32-x86.zip -OutFile $env:PROJECT_DIR\cm.zip
 powershell Invoke-WebRequest https://cmake.org/files/v3.16/cmake-%CMAKE_VERSION%-win32-x86.zip -OutFile $env:PROJECT_DIR\cm.zip
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 IF NOT EXIST cmake-%CMAKE_VERSION%-win32-x86 7z -y x cm.zip | %windir%\system32\FIND "ing archive"
@@ -29,8 +31,11 @@ ECHO CMAKE_OK
 cmake --version
 
 ECHO activating VS command prompt ...
-SET PATH=C:\Program Files (x86)\MSBuild\15.0\Bin;%PATH%
-CALL "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
+::SET PATH=C:\Program Files (x86)\MSBuild\15.0\Bin;%PATH%
+SET PATH=C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\MSBuild\Current\Bin;%PATH%
+CALL "C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Auxiliary\Build\vcvars64.bat"
+::SET PATH=C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin;%PATH%
+::CALL "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\amd64\vcvars64.bat"
 
 ECHO platform^: %platform%
 
@@ -42,6 +47,7 @@ msbuild /version
 :: HARDCODE "x64" as it is uppercase on AppVeyor and download from S3 is case sensitive
 SET DEPSPKG=osrm-deps-win-x64-14.2-2019.01.7z
 
+
 :: local development
 ECHO.
 ECHO LOCAL_DEV^: %LOCAL_DEV%
@@ -51,14 +57,18 @@ IF DEFINED LOCAL_DEV IF %LOCAL_DEV% EQU 1 IF EXIST %DEPSPKG% ECHO skipping deps 
 IF EXIST %DEPSPKG% DEL %DEPSPKG%
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 
+::이미 다운 받았으므로 comment out
 ECHO downloading %DEPSPKG%
 powershell Invoke-WebRequest http://project-osrm.wolt.com/windows-build-deps/$env:DEPSPKG -OutFile $env:PROJECT_DIR\$env:DEPSPKG
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 
 :SKIPDL
 
+:: osrm-dep는 지우지 않는다. 기껏 copy 했는데
 IF EXIST osrm-deps ECHO deleting osrm-deps... && RD /S /Q osrm-deps
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
+
+
 IF EXIST build ECHO deleting build dir... && RD /S /Q build
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 
@@ -74,8 +84,12 @@ IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 
 SET OSRMDEPSDIR=%PROJECT_DIR%/osrm-deps
 set PREFIX=%OSRMDEPSDIR%/libs
-set BOOST_ROOT=%OSRMDEPSDIR%
-set BOOST_LIBRARYDIR=%BOOST_ROOT%/lib
+::boost debug 를 위해 새로 설치함. boost_1_73_0-msvc-14.2-64
+::set BOOST_ROOT=%OSRMDEPSDIR%
+::set BOOST_LIBRARYDIR=%BOOST_ROOT%/lib
+set BOOST_ROOT=C:\local\boost_1_73_0-msvc-14.2-64
+set BOOST_LIBRARYDIR=%BOOST_ROOT%/lib64-msvc-14.2
+
 set TBB_INSTALL_DIR=%OSRMDEPSDIR%
 REM set TBB_ARCH_PLATFORM=intel64/vc17
 
@@ -104,7 +118,8 @@ cmake .. ^
 -DZLIB_INCLUDE_DIR=%OSRMDEPSDIR% ^
 -DZLIB_LIBRARY=%OSRMDEPSDIR%/lib/libz.lib ^
 -DCMAKE_BUILD_TYPE=%CONFIGURATION% ^
--DCMAKE_INSTALL_PREFIX=%PREFIX%
+-DCMAKE_INSTALL_PREFIX=%PREFIX% ^
+-DCMAKE_GENERATOR_PLATFORM=x64
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 
 ECHO building ...
@@ -114,7 +129,6 @@ msbuild OSRM.sln ^
 /t:rebuild ^
 /p:BuildInParallel=true ^
 /m:%NUMBER_OF_PROCESSORS% ^
-/toolsversion:Current ^
 /p:PlatformToolset=v142 ^
 /clp:Verbosity=normal ^
 /nologo ^

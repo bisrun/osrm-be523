@@ -136,7 +136,7 @@ struct ProfileProperties
     std::array<ClassData, MAX_EXCLUDABLE_CLASSES> excludable_classes;
     unsigned weight_precision = 1;
     bool force_split_edges = false;
-    bool call_tagless_node_function = true;
+    bool call_tagless_node_function = true; // ..
 };
 } // namespace extractor
 } // namespace osrm

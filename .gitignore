@@ -55,6 +55,7 @@ Thumbs.db
 /test/data/mld
 /cmake/postinst
 
+
 # Eclipse related files #
 #########################
 .setting*
@@ -115,5 +116,5 @@ lib/binding
 
 #compile
 /build-osrm-backend-osrm_build-Debug/*
-
+/cmake-3.16.3-win32-x86/*
 CMakeLists.txt.user

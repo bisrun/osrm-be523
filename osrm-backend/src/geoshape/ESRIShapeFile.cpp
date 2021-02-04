@@ -11,11 +11,11 @@
 #include <sys/stat.h>
 
 #include <assert.h>  
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
+//#ifdef _DEBUG
+//#undef THIS_FILE
+//static char THIS_FILE[]=__FILE__;
+//#define new DEBUG_NEW
+//#endif
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -124,7 +124,7 @@ CESRIShapeFile::CESRIShapeFile(int nMaxDepth)
     m_hDBF = NULL;
 
 	//InitializeCriticalSection(&m_csQueueLock);
-};
+}
 
 CESRIShapeFile::~CESRIShapeFile()
 {
